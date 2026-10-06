@@ -169,6 +169,47 @@ func TestGenerateVideoDoesNotRefuseAKnownAspect(t *testing.T) {
 	}
 }
 
+// The reference request has an extra image-list field before the model, but
+// aspect remains at index 3. The old hardcoded 2 forced every request landscape.
+func TestReferenceVideoAspectSlot(t *testing.T) {
+	for _, tc := range []struct {
+		aspect string
+		want   int
+	}{
+		{"", 2}, {"landscape", 2}, {"16:9", 2},
+		{"portrait", 1}, {"9:16", 1}, {" 9:16 ", 1},
+	} {
+		t.Run(tc.aspect, func(t *testing.T) {
+			req := ReferenceVideoRequest{
+				ProjectID: "p", Model: "abra_r2v_8s", Prompt: "x",
+				References: []string{"a", "b"}, AspectRatio: tc.aspect,
+				Count: 2, CaptchaToken: "t",
+			}
+			arg := buildReferenceArgument(req)
+			for _, entry := range arg[0].([]any) {
+				variation := entry.([]any)
+				if got := variation[3]; got != tc.want {
+					t.Errorf("aspect slot = %v, want %d", got, tc.want)
+				}
+				if variation[2] != req.Model || len(variation[1].([]any)) != 2 || len(variation) != 11 {
+					t.Errorf("aspect changed the reference request shape: %#v", variation)
+				}
+			}
+		})
+	}
+}
+
+func TestReferenceVideoRefusesAnUnknownAspect(t *testing.T) {
+	client := New(nil, nil)
+	_, err := client.GenerateVideoFromReferences(context.Background(), ReferenceVideoRequest{
+		ProjectID: "p", Model: "abra_r2v_8s", Prompt: "x",
+		References: []string{"a"}, AspectRatio: "widescreen", CaptchaToken: "t",
+	}, CallOptions{})
+	if err == nil || !strings.Contains(err.Error(), "unknown video aspect") || !strings.Contains(err.Error(), "portrait") {
+		t.Fatalf("unknown aspect was not refused with valid alternatives: %v", err)
+	}
+}
+
 /* ------------------------------------------------------------------ *
  * the image payload
  * ------------------------------------------------------------------ */

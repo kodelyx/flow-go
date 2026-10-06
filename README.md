@@ -46,6 +46,10 @@ The resulting `flow` binary will be created in `bin/flow`.
 # Generate a video (prompt, aspect ratio, duration, quality)
 ./bin/flow generate "drone shot of misty pine mountains" landscape 8s 720p
 
+# Generate a portrait video from character references
+./bin/flow generate "the two characters walk through the city" \
+  --reference character-a.jpg --reference character-b.jpg --aspect 9:16
+
 # Check account balance & credits
 ./bin/flow balance
 

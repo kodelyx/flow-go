@@ -575,16 +575,7 @@ func runGenerate(args []string) int {
 			// follows here.
 			warnIgnoredFlags([]string{"--quality (reference-to-video has no quality variant)"})
 		}
-		if strings.TrimSpace(*aspect) != "" {
-			// The reference payload is not the text-to-video layout the aspect
-			// slot belongs to: it puts the prompt at index 0 and the reference
-			// images at index 1, where the text-to-video one puts them last. So
-			// there is no verified slot to write. Reported rather than silently
-			// dropped — the flag is applied on the text-to-video path, which
-			// makes a silent drop here the more surprising of the two.
-			warnIgnoredFlags([]string{"--aspect (reference-to-video has no aspect slot)"})
-		}
-		return runReferenceGenerate(ctx, a, *prompt, references, *duration, !*noDownload)
+		return runReferenceGenerate(ctx, a, *prompt, references, *duration, *aspect, !*noDownload)
 	}
 
 	fmt.Printf("generating %d video(s) at %ds, %s\n", *count, *duration, *quality)
@@ -617,7 +608,7 @@ func runGenerate(args []string) int {
 // different engine entry point, a different model family, and no --count — the
 // reference RPC submits one render per call.
 func runReferenceGenerate(ctx context.Context, a *app.App, prompt string,
-	references []string, duration int, download bool) int {
+	references []string, duration int, aspect string, download bool) int {
 
 	fmt.Printf("generating from %d reference image(s) at %ds\n", len(references), duration)
 
@@ -625,6 +616,7 @@ func runReferenceGenerate(ctx context.Context, a *app.App, prompt string,
 		Prompt:     prompt,
 		References: references,
 		Duration:   duration,
+		Aspect:     aspect,
 		Wait:       download,
 		Download:   download,
 	})
