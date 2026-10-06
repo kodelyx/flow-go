@@ -2429,6 +2429,9 @@ type ReferenceVideoRequest struct {
 	// References are project media ids, one per reference image. The capture
 	// carried four; at least one is required.
 	References []string
+	// AspectRatio uses the same video enum as GenerateVideoRequest, at request[3].
+	// Empty keeps the captured landscape value (2).
+	AspectRatio string
 	// Count is how many variations to submit. Each becomes its own entry with its
 	// own uuid pair.
 	Count int
@@ -2491,7 +2494,7 @@ func (r ReferenceVideoRequest) withCaptcha(token string) ReferenceVideoRequest {
 //
 //	[null, null, [[[prompt]]]],
 //	[[null, "<id>"], [null, "<id>"], ...],
-//	"abra_r2v_4s", 2, null,
+//	"abra_r2v_4s", <aspect>, null,
 //	[null, null, null, null, <uuid>, <uuid>],
 //	null, null, null, null,
 //	[["d351dd3c-0a12-1522-0000-000000000000"]]
@@ -2499,6 +2502,10 @@ func buildReferenceArgument(req ReferenceVideoRequest) []any {
 	count := req.Count
 	if count < 1 {
 		count = 1
+	}
+	aspect := videoAspectSlot(req.AspectRatio)
+	if req.AspectRatio == "" {
+		aspect = config.VideoAspectLandscape
 	}
 
 	refs := make([]any, 0, len(req.References))
@@ -2512,8 +2519,9 @@ func buildReferenceArgument(req ReferenceVideoRequest) []any {
 			[]any{nil, nil, []any{[]any{[]any{req.Prompt}}}},
 			refs,
 			req.Model,
-			// The capture carried 2 here, as the edit payload does.
-			videoModeText,
+			// The frontend's reference request writes aspect ratio at field 4,
+			// which is index 3 in this array. The captured 2 is landscape.
+			aspect,
 			nil,
 			[]any{nil, nil, nil, nil, uuid.NewString(), uuid.NewString()},
 			nil, nil, nil, nil,
@@ -2559,6 +2567,12 @@ func (c *Client) GenerateVideoFromReferences(ctx context.Context, req ReferenceV
 	}
 	if req.CaptchaToken == "" {
 		return nil, fmt.Errorf("batchexecute: a reCAPTCHA token is required")
+	}
+	if req.AspectRatio != "" {
+		if _, ok := config.VideoAspectValue(req.AspectRatio); !ok {
+			return nil, fmt.Errorf("batchexecute: unknown video aspect %q; use one of %s",
+				req.AspectRatio, strings.Join(config.VideoAspectNames, ", "))
+		}
 	}
 
 	if opts.SourcePath == "" {

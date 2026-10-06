@@ -3940,6 +3940,7 @@ type BatchReferenceRequest struct {
 	// Model defaults to the reference model for Duration.
 	Model     string
 	Duration  int
+	Aspect    string
 	ProjectID string
 	// Wait polls until the render is downloadable. Download implies Wait.
 	Wait     bool
@@ -4057,6 +4058,7 @@ func (e *Engine) GenerateVideoFromReferencesViaBatch(ctx context.Context, req Ba
 		Model:        model,
 		Prompt:       req.Prompt,
 		References:   refs,
+		AspectRatio:  req.Aspect,
 		CaptchaToken: captcha,
 	}, e.captchaOptions(recaptcha.ActionVideo, batchexecute.CallOptions{
 		SourcePath: "/project/" + projectID,
