@@ -293,6 +293,7 @@ const EditModel = "abra_edit"
 
 // ImageModels maps friendly names to the Flow image model enum.
 var ImageModels = map[string]string{
+	"beluga":        "BELUGA",
 	"harbor_seal":   "HARBOR_SEAL",
 	"lite":          "HARBOR_SEAL",
 	"narwhal":       "NARWHAL",
@@ -303,11 +304,11 @@ var ImageModels = map[string]string{
 }
 
 // DefaultImageModel resolves IMAGE_MODEL, accepting either a friendly key or an
-// already-resolved enum value.
+// already-resolved enum value. Defaults to BELUGA.
 func DefaultImageModel() string {
 	raw := os.Getenv("IMAGE_MODEL")
 	if raw == "" {
-		return "NARWHAL"
+		return "BELUGA"
 	}
 	if resolved, ok := ImageModels[strings.ToLower(raw)]; ok {
 		return resolved
@@ -317,7 +318,7 @@ func DefaultImageModel() string {
 			return raw
 		}
 	}
-	return "NARWHAL"
+	return "BELUGA"
 }
 
 /* ------------------------------------------------------------------ *

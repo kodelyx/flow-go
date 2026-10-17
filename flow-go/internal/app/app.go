@@ -114,7 +114,13 @@ func Build(cfg Config) (*App, error) {
 	// to reach into this package's config for both, which is what kept it from
 	// being a module of its own.
 	br := bridge.NewBridge(targets, domains, config.CookieDir())
-	br.ListenAddr = fmt.Sprintf("127.0.0.1:%d", config.WSPort)
+	// Configure bridge bind host: allows WS_HOST env var to specify the bind address
+	// (default 0.0.0.0 to support remote browser extensions across the LAN, or 127.0.0.1 for local only).
+	wsHost := os.Getenv("WS_HOST")
+	if wsHost == "" {
+		wsHost = "0.0.0.0"
+	}
+	br.ListenAddr = fmt.Sprintf("%s:%d", wsHost, config.WSPort)
 
 	eng, err := engine.New(st, br, engine.Options{
 		ProjectID:    cfg.ProjectID,

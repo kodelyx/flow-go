@@ -184,8 +184,8 @@ GENERATE FLAGS
 IMAGE FLAGS
   --prompt              Prompt text (required, or give it as a positional
                         argument)
-  --model               harbor_seal | narwhal | gem_pix_2
-                        (default: $IMAGE_MODEL, else narwhal)
+  --model               beluga | harbor_seal | narwhal | gem_pix_2
+                        (default: $IMAGE_MODEL, else beluga)
   --count               Accepted, but only 1 is honoured: the RPC returns one
                         asset per call
   --aspect              landscape | 16:9 | portrait | 9:16 | square | 1:1 |
@@ -1277,8 +1277,8 @@ func runImage(args []string) int {
 	common.bind(fs)
 	prompt := fs.String("prompt", "", "prompt text")
 	count := fs.Int("count", 1, "number of variations")
-	model := fs.String("model", envDefault("IMAGE_MODEL", ""),
-		"harbor_seal, narwhal, or gem_pix_2 (from $IMAGE_MODEL, else narwhal)")
+	model := fs.String("model", envDefault("IMAGE_MODEL", "beluga"),
+		"beluga, harbor_seal, narwhal, or gem_pix_2 (from $IMAGE_MODEL, else beluga)")
 	noDownload := fs.Bool("no-download", false, "skip writing the result to disk")
 	// --seed is not implemented on the batchexecute transport; declared, and
 	// named when passed, but the run continues without it.
@@ -1556,8 +1556,8 @@ func runBatchAll(args []string) int {
 	var common commonFlags
 	common.bind(fs)
 	prompt := fs.String("prompt", "", "prompt to generate (required)")
-	model := fs.String("model", envDefault("IMAGE_MODEL", "narwhal"),
-		"image model: narwhal|lite|pro (from $IMAGE_MODEL, else narwhal)")
+	model := fs.String("model", envDefault("IMAGE_MODEL", "beluga"),
+		"image model: beluga|lite|pro (from $IMAGE_MODEL, else beluga)")
 	download := fs.Bool("download", true, "write the results to output/")
 	_ = fs.Parse(args)
 
