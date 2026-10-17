@@ -18,6 +18,18 @@ all: build
 build:
 	$(GO) build -o $(BINARY) .
 
+## build-arm64: compile the binary for linux/arm64 (e.g. Raspberry Pi)
+build-arm64:
+	GOOS=linux GOARCH=arm64 $(GO) build -o $(BINARY)-linux-arm64 .
+
+## build-cross: compile binaries for all major platforms (linux/amd64, linux/arm64, darwin/arm64, darwin/amd64, windows/amd64)
+build-cross:
+	GOOS=linux GOARCH=amd64 $(GO) build -o bin/flow-linux-amd64 .
+	GOOS=linux GOARCH=arm64 $(GO) build -o bin/flow-linux-arm64 .
+	GOOS=darwin GOARCH=arm64 $(GO) build -o bin/flow-darwin-arm64 .
+	GOOS=darwin GOARCH=amd64 $(GO) build -o bin/flow-darwin-amd64 .
+	GOOS=windows GOARCH=amd64 $(GO) build -o bin/flow-windows-amd64.exe .
+
 ## run: listen for the extension in the foreground (no HTTP API)
 run:
 	$(GO) run . bridge

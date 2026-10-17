@@ -4760,14 +4760,17 @@ func (e *Engine) GenerateImageViaBatch(ctx context.Context, req BatchImageReques
 }
 
 // batchImageModel resolves a friendly model name to the enum the RPC expects.
+// Defaults to BELUGA when empty or specified as beluga.
 func batchImageModel(name string) string {
 	switch strings.ToLower(strings.TrimSpace(name)) {
-	case "", "narwhal", "nano_banana", "standard", "nano_banana_2":
-		return "NARWHAL"
+	case "", "beluga":
+		return "BELUGA"
 	case "harbor_seal", "lite", "nano_banana_2_lite":
 		return "HARBOR_SEAL"
 	case "gem_pix_2", "pro", "nano_banana_pro":
 		return "GEM_PIX_2"
+	case "narwhal", "nano_banana", "standard", "nano_banana_2":
+		return "NARWHAL"
 	}
 	// Already an enum.
 	return strings.ToUpper(name)
